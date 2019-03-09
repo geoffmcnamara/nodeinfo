@@ -1,16 +1,16 @@
 #!/usr/bin/env python2
+# vim: set syntax=python nospell:
 # ########################
-# nodeinfo.py 
+# nodeinfo.py
 # bootle app for cli or wsgi
-# companionway.net 
-# 
-# vim: nospell
+# companionway.net
+#
 #
 # This script can be run from the commandline as is or through WSGI
 # ########################
 """
 nodeinfo.py
-requires: bottlepy
+requires: bottle.py
 for auto install (gwm): use fab -H<myhost> webit
 To run from webserver (eg apache2) - this is out of fabfile.py file that I use...
 # install wsgi, web.py, and config wsgi alias /chkit/nodeinfo  # note: uses python2 !!
@@ -57,11 +57,11 @@ import datetime
 from bottle import default_app, route, run, request, SimpleTemplate
 
 
-# setup environment # 
+# setup environment #
 os.chdir(os.path.dirname(__file__))
 sys.path.append(os.path.dirname(__file__))
-from wraphtml import WrapHtml
-  
+# from wraphtml import WrapHtml
+
 
 # WSGI #
 # the name "application" is needed for wsgi
@@ -222,7 +222,7 @@ tpl = SimpleTemplate("""
     </html>
 """)
 
-# these are used to filter out warnings and errors from inxi 
+# these are used to filter out warnings and errors from inxi
 #   - see def acceptible below
 reject_strings = [
             "Use of uninitialized value",
@@ -292,11 +292,11 @@ class HtmlWrap:
         """
         render the html page using the var values inserted into global template (tpl)
         """
-        output = tpl.render(title=self.title, 
-                            content=self.content, 
+        output = tpl.render(title=self.title,
+                            content=self.content,
                             nav_d=self.nav_d,
-                            left=self.left, 
-                            center=self.center, 
+                            left=self.left,
+                            center=self.center,
                             right=self.right,
                             org=self.org,)
         return output
@@ -332,12 +332,12 @@ def index():
         ]
 
     for line in lines:
-        content += "<b>" + str(line[0]) + "</b> " + str(line[1]) + "<br>"  
+        content += "<b>" + str(line[0]) + "</b> " + str(line[1]) + "<br>"
     page = HtmlWrap(content=content, title="System Info")
-    page.nav_d={"Home":"/",
-                "inxi": request_uri + '/inxi',
-                "inxifull": request_uri + '/inxifull'
-                }
+    page.nav_d = {'Home': '/',
+                  "inxi": request_uri + '/inxi',
+                  "inxifull": request_uri + '/inxifull'
+                  }
     return page.render()
 
 
@@ -346,10 +346,10 @@ def new_route(new_route):
     """
     This is a way to maintain use in as both a CLI application and a WSGI application in that the routes
     don't have to get muddled when you use a WSGIAlias with a subdir.
-    All this does is take the route supplied to the script (that is not the root "/" and to match it to 
+    All this does is take the route supplied to the script (that is not the root "/" and to match it to
     any routes we want. Then it builds the content desired based on that route and finally runs it through HtmlWrap class
     which fills in defaults or set variables and pumps it through a template to return the html.
-    Because all the routes are build directly off of the original requestes uri we can easily work with that to 
+    Because all the routes are build directly off of the original requestes uri we can easily work with that to
     construct other routes (as seen in the nav_d).
     """
     content = cmd = ""  # initialiaze vars
@@ -368,8 +368,8 @@ def new_route(new_route):
         content += "<pre>" + "\n".join(lines) + "</pre>"  # maintains the output format and end of line feeds
     page = HtmlWrap(content=content, title="System Info", center=cmd)
     page.nav_d = {"nodeinfo": base_request_uri,
-                  "inxi" : base_request_uri + '/inxi',
-                  "inxifull" : base_request_uri + '/inxifull'
+                  "inxi": base_request_uri + '/inxi',
+                  "inxifull": base_request_uri + '/inxifull'
                   }
     return page.render()
 
